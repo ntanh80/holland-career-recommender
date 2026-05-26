@@ -33,8 +33,10 @@ export default function InfoPage() {
           email: data.email,
           phone: data.phone,
           interested_career: data.interested_career || null,
+          desired_major: data.desired_major,
+          desired_university: data.desired_university,
           user_type: data.user_type,
-          school: data.school || null,
+          school: data.school,
           class_name: data.class_name || null,
           province: data.province,
           consent_status: data.consent_status,
@@ -93,15 +95,28 @@ export default function InfoPage() {
           </select>
         </div>
 
+        <div>
+          <label className="label-field">Trường đang học *</label>
+          <input {...register('school', { required: 'Vui lòng nhập trường đang học' })} className={`input-field ${errors.school ? 'input-error' : ''}`} placeholder="Tên trường đang học..." />
+          {errors.school && <p className="error-text">{errors.school.message}</p>}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="label-field">Trường</label>
-            <input {...register('school')} className="input-field" placeholder="Tên trường đang học..." />
+            <label className="label-field">Ngành học mong muốn *</label>
+            <input {...register('desired_major', { required: 'Vui lòng nhập ngành học mong muốn' })} className={`input-field ${errors.desired_major ? 'input-error' : ''}`} placeholder="VD: Công nghệ thông tin..." />
+            {errors.desired_major && <p className="error-text">{errors.desired_major.message}</p>}
           </div>
           <div>
-            <label className="label-field">Lớp</label>
-            <input {...register('class_name')} className="input-field" placeholder="VD: 12A1" />
+            <label className="label-field">Trường đại học mong muốn *</label>
+            <input {...register('desired_university', { required: 'Vui lòng nhập trường đại học mong muốn' })} className={`input-field ${errors.desired_university ? 'input-error' : ''}`} placeholder="VD: Đại học Bách Khoa..." />
+            {errors.desired_university && <p className="error-text">{errors.desired_university.message}</p>}
           </div>
+        </div>
+
+        <div>
+          <label className="label-field">Lớp</label>
+          <input {...register('class_name')} className="input-field" placeholder="VD: 12A1" />
         </div>
 
         <div>

@@ -2,11 +2,13 @@ const pool = require('../config/db');
 
 const userModel = {
   async create(data) {
-    const sql = `INSERT INTO users (full_name, email, phone, interested_career, user_type, school, class_name, province, consent_status, ip_address)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO users (full_name, email, phone, interested_career, desired_major, desired_university, user_type, school, class_name, province, consent_status, ip_address)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     const [result] = await pool.execute(sql, [
       data.full_name, data.email, data.phone,
       data.interested_career || null,
+      data.desired_major || null,
+      data.desired_university || null,
       data.user_type, data.school || null,
       data.class_name || null, data.province,
       data.consent_status ? 1 : 0,

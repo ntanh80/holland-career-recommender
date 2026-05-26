@@ -9,6 +9,8 @@ CREATE TABLE users (
   email VARCHAR(255) NOT NULL,
   phone VARCHAR(20) NOT NULL,
   interested_career VARCHAR(255) NULL,
+  desired_major VARCHAR(255) NULL,
+  desired_university VARCHAR(255) NULL,
   user_type ENUM('hoc_sinh','sinh_vien','phu_huynh','giao_vien','nguoi_di_lam','khac') NOT NULL,
   school VARCHAR(255) NULL,
   class_name VARCHAR(100) NULL,

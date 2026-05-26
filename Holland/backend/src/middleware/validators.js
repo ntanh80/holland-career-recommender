@@ -25,6 +25,9 @@ const submitSurveyRules = [
     .matches(/^[0-9+\-\s]{7,15}$/).withMessage('Số điện thoại không hợp lệ'),
   body('user_info.user_type').isIn(['hoc_sinh', 'sinh_vien', 'phu_huynh', 'giao_vien', 'nguoi_di_lam', 'khac'])
     .withMessage('Loại người dùng không hợp lệ'),
+  body('user_info.school').trim().notEmpty().withMessage('Trường đang học là bắt buộc'),
+  body('user_info.desired_major').trim().notEmpty().withMessage('Ngành học mong muốn là bắt buộc'),
+  body('user_info.desired_university').trim().notEmpty().withMessage('Trường đại học mong muốn là bắt buộc'),
   body('user_info.province').trim().notEmpty().withMessage('Tỉnh/Thành là bắt buộc'),
   body('user_info.consent_status').isBoolean().withMessage('Vui lòng đồng ý điều khoản'),
 ];
