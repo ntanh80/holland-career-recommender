@@ -55,48 +55,105 @@ export default function ResultPage() {
 
   const handleDownloadPDF = async () => {
     const d = result;
+    const today = new Date().toLocaleDateString('vi-VN');
 
-    // Build a hidden HTML element rendered by the browser (preserves Vietnamese fonts)
     const el = document.createElement('div');
-    el.style.cssText = 'position:absolute;left:-9999px;top:0;width:700px;background:#fff;font-family:Arial,sans-serif;padding:20px;line-height:1.6;color:#333;';
+    el.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;background:#fff;font-family:"Segoe UI",Arial,Tahoma,sans-serif;color:#1a1a2e;';
     el.innerHTML = `
-      <h1 style="text-align:center;font-size:22px;margin-bottom:5px;">Kết quả Trắc nghiệm Hướng nghiệp</h1>
-      <h2 style="text-align:center;font-size:18px;font-weight:normal;color:#666;margin-bottom:20px;">Holland / RIASEC</h2>
-      <p style="font-size:15px;"><strong>Họ tên:</strong> ${d.full_name}</p>
-      <p style="font-size:15px;"><strong>Mã Holland:</strong> <span style="font-size:20px;font-weight:bold;color:#2563eb;">${d.holland_code}</span></p>
-      <hr style="margin:15px 0;">
-      <h3 style="font-size:16px;margin-bottom:8px;">Điểm từng nhóm:</h3>
-      <table style="width:100%;border-collapse:collapse;margin-bottom:15px;">
-        ${Object.entries(d.scores).map(([k, v]) => `
-          <tr>
-            <td style="padding:4px 8px;font-weight:bold;">${k} - ${TYPE_VN[k]}</td>
-            <td style="padding:4px 8px;">${v.toFixed(1)} điểm</td>
-            <td style="padding:4px 8px;">
-              <div style="background:#e5e7eb;height:8px;border-radius:4px;width:200px;">
-                <div style="background:${TYPE_COLORS[k]};height:8px;border-radius:4px;width:${(v / 50) * 200}px;"></div>
-              </div>
-            </td>
-          </tr>
-        `).join('')}
+    <!-- HEADER -->
+    <div style="background:linear-gradient(135deg,#1e3a5f,#2563eb);padding:32px 40px;text-align:center;">
+      <h1 style="color:#fff;font-size:26px;margin:0 0 4px;letter-spacing:1px;">KẾT QUẢ TRẮC NGHIỆM HƯỚNG NGHIỆP</h1>
+      <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:0;">Holland Code / RIASEC Assessment</p>
+    </div>
+
+    <!-- PERSON + CODE -->
+    <div style="background:#f8fafc;padding:24px 40px;border-bottom:1px solid #e2e8f0;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:top;padding-right:32px;">
+            <p style="font-size:11px;color:#64748b;margin:0 0 2px;text-transform:uppercase;letter-spacing:1px;">Người thực hiện</p>
+            <p style="font-size:18px;font-weight:700;margin:0;color:#0f172a;">${d.full_name}</p>
+            <p style="font-size:13px;color:#475569;margin:8px 0 0;">Ngày thực hiện: ${today}</p>
+          </td>
+          <td style="vertical-align:top;text-align:center;border-left:2px solid #e2e8f0;padding-left:32px;">
+            <p style="font-size:11px;color:#64748b;margin:0 0 4px;text-transform:uppercase;letter-spacing:1px;">Mã Holland</p>
+            <p style="font-size:48px;font-weight:900;margin:0;color:#2563eb;letter-spacing:8px;">${d.holland_code}</p>
+            <p style="font-size:12px;color:#475569;margin:4px 0 0;">${d.top_three.map(t => TYPE_LABELS[t]).join(' • ')}</p>
+          </td>
+        </tr>
       </table>
-      <p style="font-size:14px;"><strong>Top 3 nhóm nổi bật:</strong> ${d.top_three.map(t => `${t} - ${TYPE_LABELS[t]} (${TYPE_VN[t]})`).join(' | ')}</p>
-      ${d.top_three.map((type, i) => `
-        <div style="margin-top:12px;padding:10px;border-left:4px solid ${TYPE_COLORS[type]};background:#f9fafb;">
-          <h3 style="font-size:15px;color:${TYPE_COLORS[type]};margin:0 0 5px;">Top ${i + 1}: ${TYPE_LABELS[type]} — ${TYPE_VN[type]}</h3>
-          <p style="font-size:13px;margin:0;color:#555;">${d[`top_${i + 1}`].description}</p>
+    </div>
+
+    <!-- SCORES -->
+    <div style="padding:28px 40px;">
+      <h2 style="font-size:16px;color:#0f172a;margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid #2563eb;">ĐIỂM SỐ 6 NHÓM TÍNH CÁCH</h2>
+      ${Object.entries(d.scores).sort(([,a],[,b]) => b - a).map(([k, v], i) => `
+        <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+          <span style="font-weight:700;font-size:12px;width:22px;color:#94a3b8;text-align:right;">#${i + 1}</span>
+          <span style="display:inline-block;width:32px;height:32px;line-height:32px;text-align:center;border-radius:8px;background:${TYPE_COLORS[k]};color:#fff;font-weight:700;font-size:14px;">${k}</span>
+          <span style="font-size:13px;font-weight:600;width:100px;color:#334155;">${TYPE_VN[k]}</span>
+          <div style="flex:1;background:#f1f5f9;height:22px;border-radius:11px;overflow:hidden;">
+            <div style="background:${TYPE_COLORS[k]};height:22px;border-radius:11px;width:${Math.max((v/50)*100, 4)}%;display:flex;align-items:center;justify-content:flex-end;padding-right:${v > 5 ? '10' : '20'}px;box-sizing:border-box;">
+              <span style="color:${v > 25 ? '#fff' : '#334155'};font-size:12px;font-weight:700;">${v.toFixed(1)}</span>
+            </div>
+          </div>
         </div>
       `).join('')}
-      ${d.careers?.length ? `
-        <hr style="margin:15px 0;">
-        <h3 style="font-size:16px;margin-bottom:8px;">Ngành nghề gợi ý:</h3>
-        ${d.careers.slice(0, 10).map(c => `
-          <div style="margin-bottom:8px;padding:8px;border:1px solid #e5e7eb;border-radius:4px;">
-            <strong style="font-size:14px;">${c.career_name}</strong>
-            <span style="font-size:12px;color:#666;"> — ${c.major_group}</span>
-            <p style="font-size:12px;margin:4px 0 0;color:#555;">${c.description || ''}</p>
+    </div>
+
+    <!-- TOP 3 DETAIL -->
+    <div style="background:#f8fafc;padding:28px 40px;border-top:1px solid #e2e8f0;">
+      <h2 style="font-size:16px;color:#0f172a;margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid #2563eb;">CHÂN DUNG TÍNH CÁCH NGHỀ NGHIỆP</h2>
+      ${d.top_three.map((type, i) => `
+        <div style="margin-bottom:16px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+          <div style="background:${TYPE_COLORS[type]};padding:12px 16px;">
+            <table style="width:100%;"><tr>
+              <td><span style="color:rgba(255,255,255,0.8);font-size:11px;font-weight:600;">TOP ${i + 1}</span></td>
+              <td style="text-align:right;"><span style="color:#fff;font-size:15px;font-weight:700;">${type} — ${TYPE_LABELS[type]}</span></td>
+            </tr></table>
           </div>
-        `).join('')}
-      ` : ''}
+          <div style="padding:14px 16px;">
+            <p style="font-size:13px;line-height:1.7;color:#475569;margin:0 0 10px;">${d[`top_${i + 1}`].description}</p>
+            <table style="width:100%;font-size:12px;color:#64748b;">
+              <tr>
+                <td style="padding:4px 0;width:90px;font-weight:600;">Điểm mạnh:</td>
+                <td>${STRENGTHS[type].join(', ')}</td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;font-weight:600;">Môi trường:</td>
+                <td>${ENVIRONMENTS[type]}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- CAREERS -->
+    <div style="padding:28px 40px;">
+      <h2 style="font-size:16px;color:#0f172a;margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid #2563eb;">NGÀNH NGHỀ GỢI Ý PHÙ HỢP</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <tr style="background:#2563eb;color:#fff;">
+          <td style="padding:8px 12px;font-weight:700;border-radius:6px 0 0 0;">Ngành nghề</td>
+          <td style="padding:8px 12px;font-weight:700;">Nhóm ngành</td>
+          <td style="padding:8px 12px;font-weight:700;border-radius:0 6px 0 0;">Kỹ năng cần phát triển</td>
+        </tr>
+        ${d.careers?.slice(0, 10).map((c, i) => `
+          <tr style="background:${i % 2 === 0 ? '#fff' : '#f8fafc'};">
+            <td style="padding:6px 12px;font-weight:600;color:#1e3a5f;">${c.career_name}</td>
+            <td style="padding:6px 12px;color:#64748b;">${c.major_group}</td>
+            <td style="padding:6px 12px;color:#475569;">${c.required_skills || '—'}</td>
+          </tr>
+        `).join('') || '<tr><td colspan="3" style="padding:12px;text-align:center;color:#94a3b8;">Không có dữ liệu</td></tr>'}
+      </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="background:#1e3a5f;padding:20px 40px;text-align:center;color:rgba(255,255,255,0.6);font-size:11px;line-height:1.6;">
+      <p style="margin:0;">Báo cáo được tạo từ hệ thống Trắc nghiệm Hướng nghiệp Holland/RIASEC</p>
+      <p style="margin:4px 0 0;">Kết quả chỉ mang tính tham khảo. Hãy liên hệ chuyên gia tư vấn hướng nghiệp để được hỗ trợ chi tiết.</p>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.35);">© ${new Date().getFullYear()} Holland Career Test. All rights reserved.</p>
+    </div>
     `;
     document.body.appendChild(el);
 
