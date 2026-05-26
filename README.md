@@ -214,19 +214,6 @@ npm run dev             # Chạy tại http://localhost:5173
 | `POST` | `/api/results/:token/send-email` | Gửi lại email kết quả |
 | `GET` | `/api/careers/recommendations?code=RIA` | Gợi ý ngành nghề theo mã Holland |
 
-### Response Format
-
-```json
-// Thành công
-{ "success": true, "data": { ... } }
-
-// Lỗi
-{
-  "success": false,
-  "error": { "code": "VALIDATION_ERROR", "message": "Mô tả lỗi" }
-}
-```
-
 ### Rate Limiting
 
 - Public API chung: **30 requests/phút/IP**
@@ -273,14 +260,6 @@ admins         -- Tài khoản quản trị (username, password_hash, role)
 ```
 
 ---
-
-## 🗺️ Lộ trình Phát triển
-
-| Phase | Nội dung | Trạng thái |
-|-------|----------|:----------:|
-| **Phase 1** | Core Survey — Làm test, tính điểm, kết quả, email, PDF | ✅ Done |
-| **Phase 2** | Admin Panel — Quản lý câu hỏi, ngành nghề, người dùng, thống kê | ⏳ Planned |
-| **Phase 3** | Production Hardening — Docker Compose, CI/CD, CDN, Winston logging | 📋 Planned |
 
 ---
 
