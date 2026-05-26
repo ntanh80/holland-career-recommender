@@ -140,20 +140,23 @@ export default function QuestionsManagePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="!p-5">
+      <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold text-gray-800">Quản lý câu hỏi</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Quản lý câu hỏi</h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              {sorted.length} câu hỏi
-              {filterType && <span className="ml-1">- Nhóm <span className="font-medium text-gray-700">{filterType}</span></span>}
-              {search && <span className="ml-1">- Từ khóa "<span className="font-medium text-gray-700">{search}</span>"</span>}
+              {questions.length} câu hỏi
+              {(filterType || search) && <span className="text-gray-400"> — </span>}
+              {filterType && <span>nhóm <span className="font-medium text-gray-600">{filterType}</span></span>}
+              {filterType && search && <span className="text-gray-400">, </span>}
+              {search && <span>từ khóa "<span className="font-medium text-gray-600">{search}</span>"</span>}
+              {(filterType || search) && <span className="text-gray-400"> · </span>}
+              {(filterType || search) && <span>{sorted.length} kết quả</span>}
             </p>
           </div>
-          <Button onClick={openCreate} className="!px-4 !py-2 !text-sm !font-semibold">+ Thêm câu hỏi</Button>
         </div>
         <div className="flex items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative flex-1 max-w-md">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -162,7 +165,7 @@ export default function QuestionsManagePage() {
               onChange={e => setSearchInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { setSearch(searchInput); setPage(1); } }}
               placeholder="Tìm kiếm câu hỏi..."
-              className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+              className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
             />
             {search && (
               <button
@@ -176,7 +179,7 @@ export default function QuestionsManagePage() {
             )}
           </div>
           <select value={filterType} onChange={e => { setFilterType(e.target.value); setPage(1); }}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 min-w-[200px] bg-white">
+            className="text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 bg-white">
             <option value="">Tất cả nhóm ({questions.length})</option>
             {types.map(t => {
               const count = questions.filter(q => q.holland_type === t.code).length;
@@ -185,8 +188,9 @@ export default function QuestionsManagePage() {
               );
             })}
           </select>
+          <Button onClick={openCreate} className="!px-4 !py-2 !text-sm !font-semibold whitespace-nowrap">+ Thêm câu hỏi</Button>
         </div>
-      </Card>
+      </div>
 
       {/* Table */}
       <Card>
