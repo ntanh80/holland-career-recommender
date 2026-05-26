@@ -230,10 +230,17 @@ router.delete('/admin/careers/:id', adminAuth, async (req, res, next) => {
 // ── USERS ────────────────────────────────────────
 router.get('/admin/users', adminAuth, async (req, res, next) => {
   try {
-    const { search, province, school, user_type, page, limit } = req.query;
+    const { search, province, school, user_type, page, limit, sortKey, sortDir } = req.query;
     const pageNum = Math.max(parseInt(page) || 1, 1);
     const limitNum = Math.min(parseInt(limit) || 20, 100);
     const offset = (pageNum - 1) * limitNum;
+
+    const ALLOWED_SORTS = ['full_name', 'email', 'phone', 'user_type', 'school', 'province', 'holland_code', 'created_at'];
+    const sort = ALLOWED_SORTS.includes(sortKey) ? sortKey : 'created_at';
+    const dir = sortDir === 'asc' ? 'ASC' : 'DESC';
+    const orderClause = sort === 'holland_code'
+      ? `ORDER BY t.holland_code ${dir}`
+      : `ORDER BY u.${sort} ${dir}`;
 
     let where = 'WHERE 1=1';
     const params = [];
@@ -251,7 +258,7 @@ router.get('/admin/users', adminAuth, async (req, res, next) => {
     const [rows] = await pool.execute(
       `SELECT u.*, t.holland_code, t.result_token
        FROM users u LEFT JOIN test_results t ON u.id = t.user_id
-       ${where} ORDER BY u.created_at DESC LIMIT ${limitNum} OFFSET ${offset}`,
+       ${where} ${orderClause} LIMIT ${limitNum} OFFSET ${offset}`,
       params
     );
 

@@ -27,6 +27,8 @@ export default function QuestionsManagePage() {
   const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('');
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [sortKey, setSortKey] = useState('order_number');
   const [sortDir, setSortDir] = useState('asc');
   const [page, setPage] = useState(1);
@@ -64,7 +66,11 @@ export default function QuestionsManagePage() {
   };
 
   const sorted = useMemo(() => {
-    const filtered = filterType ? questions.filter(q => q.holland_type === filterType) : [...questions];
+    let filtered = filterType ? questions.filter(q => q.holland_type === filterType) : [...questions];
+    if (search) {
+      const s = search.toLowerCase();
+      filtered = filtered.filter(q => q.content.toLowerCase().includes(s));
+    }
     filtered.sort((a, b) => {
       let va = a[sortKey];
       let vb = b[sortKey];
@@ -76,7 +82,7 @@ export default function QuestionsManagePage() {
       return 0;
     });
     return filtered;
-  }, [questions, filterType, sortKey, sortDir]);
+  }, [questions, filterType, search, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paged = sorted.slice((page - 1) * pageSize, page * pageSize);
@@ -133,32 +139,52 @@ export default function QuestionsManagePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Quản lý câu hỏi</h1>
-          <p className="text-sm text-gray-500">{sorted.length} câu hỏi{filterType ? ` (nhóm ${filterType})` : ''}</p>
+      {/* Header */}
+      <Card className="!p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-gray-800">Quản lý câu hỏi</h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {sorted.length} câu hỏi
+              {filterType && <span className="ml-1">- Nhóm <span className="font-medium text-gray-700">{filterType}</span></span>}
+              {search && <span className="ml-1">- Từ khóa "<span className="font-medium text-gray-700">{search}</span>"</span>}
+            </p>
+          </div>
+          <Button onClick={openCreate} className="!px-4 !py-2 !text-sm !font-semibold">+ Thêm câu hỏi</Button>
         </div>
-        <Button onClick={openCreate}>+ Thêm câu hỏi</Button>
-      </div>
-
-      {/* Filter bar */}
-      <Card className="!p-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm font-medium text-gray-600">Lọc theo nhóm:</span>
-          <button onClick={() => { setFilterType(''); setPage(1); }}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${!filterType ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-            Tất cả ({questions.length})
-          </button>
-          {types.map(t => {
-            const count = questions.filter(q => q.holland_type === t.code).length;
-            return (
-              <button key={t.code} onClick={() => { setFilterType(t.code); setPage(1); }}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterType === t.code ? 'text-white' : 'text-gray-600 hover:bg-gray-200'}`}
-                style={filterType === t.code ? { backgroundColor: t.color } : { backgroundColor: '#f1f5f9' }}>
-                {t.code} - {t.name_vn} ({count})
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { setSearch(searchInput); setPage(1); } }}
+              placeholder="Tìm kiếm câu hỏi..."
+              className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+            />
+            {search && (
+              <button
+                onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
-            );
-          })}
+            )}
+          </div>
+          <select value={filterType} onChange={e => { setFilterType(e.target.value); setPage(1); }}
+            className="text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 min-w-[200px] bg-white">
+            <option value="">Tất cả nhóm ({questions.length})</option>
+            {types.map(t => {
+              const count = questions.filter(q => q.holland_type === t.code).length;
+              return (
+                <option key={t.code} value={t.code}>{t.code} - {t.name_vn} ({count})</option>
+              );
+            })}
+          </select>
         </div>
       </Card>
 
