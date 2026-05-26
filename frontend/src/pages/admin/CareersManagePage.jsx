@@ -15,6 +15,7 @@ export default function CareersManagePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [filterGroupId, setFilterGroupId] = useState('');
   const [sortKey, setSortKey] = useState('id');
   const [sortDir, setSortDir] = useState('asc');
   const [page, setPage] = useState(1);
@@ -62,6 +63,9 @@ export default function CareersManagePage() {
         (c.group_name && c.group_name.toLowerCase().includes(s))
       );
     }
+    if (filterGroupId) {
+      data = data.filter(c => c.career_group_id === Number(filterGroupId));
+    }
     data.sort((a, b) => {
       let va = a[sortKey];
       let vb = b[sortKey];
@@ -73,7 +77,7 @@ export default function CareersManagePage() {
       return 0;
     });
     return data;
-  }, [careers, search, sortKey, sortDir]);
+  }, [careers, search, filterGroupId, sortKey, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paged = sorted.slice((page - 1) * pageSize, page * pageSize);
@@ -134,8 +138,10 @@ export default function CareersManagePage() {
             <p className="text-sm text-gray-500 mt-0.5">
               {careers.length} ngành nghề
               {search && <span className="text-gray-400"> — </span>}
+              {filterGroupId && <span>nhóm <span className="font-medium text-gray-600">{groups.find(g => g.id === Number(filterGroupId))?.name}</span></span>}
+              {filterGroupId && search && <span className="text-gray-400">, </span>}
               {search && <span>từ khóa "<span className="font-medium text-gray-600">{search}</span>"</span>}
-              {search && <span className="text-gray-400"> · </span>}
+              {(filterGroupId || search) && <span className="text-gray-400"> · </span>}
               {search && <span>{sorted.length} kết quả</span>}
             </p>
           </div>
@@ -161,6 +167,14 @@ export default function CareersManagePage() {
               </button>
             )}
           </div>
+          <select value={filterGroupId} onChange={e => { setFilterGroupId(e.target.value); setPage(1); }}
+            className="text-sm border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+            <option value="">Tất cả nhóm ngành</option>
+            {groups.filter(g => g.is_active).map(g => {
+              const count = careers.filter(c => c.career_group_id === g.id).length;
+              return <option key={g.id} value={g.id}>{g.name} ({count})</option>;
+            })}
+          </select>
           <Button onClick={openCreate} className="!px-4 !py-2 !text-sm !font-semibold whitespace-nowrap">+ Thêm ngành nghề</Button>
         </div>
       </div>
