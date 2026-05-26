@@ -165,46 +165,101 @@ router.put('/admin/holland-types/:code', adminAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── CAREER GROUPS CRUD ────────────────────────────
+router.get('/admin/career-groups', adminAuth, async (req, res, next) => {
+  try {
+    const [rows] = await pool.execute('SELECT * FROM career_groups ORDER BY display_order ASC, id ASC');
+    res.json({ success: true, data: { groups: rows } });
+  } catch (err) { next(err); }
+});
+
+router.post('/admin/career-groups', adminAuth, async (req, res, next) => {
+  try {
+    const { name, display_order } = req.body;
+    if (!name) throw createError(400, 'Tên nhóm ngành là bắt buộc', 'MISSING_FIELDS');
+    const [result] = await pool.execute(
+      'INSERT INTO career_groups (name, display_order, is_active) VALUES (?, ?, 1)',
+      [name, display_order || 0]
+    );
+    const [[group]] = await pool.execute('SELECT * FROM career_groups WHERE id = ?', [result.insertId]);
+    res.status(201).json({ success: true, data: { group } });
+  } catch (err) { next(err); }
+});
+
+router.put('/admin/career-groups/:id', adminAuth, async (req, res, next) => {
+  try {
+    const { name, display_order, is_active } = req.body;
+    const [[existing]] = await pool.execute('SELECT * FROM career_groups WHERE id = ?', [req.params.id]);
+    if (!existing) throw createError(404, 'Không tìm thấy nhóm ngành', 'NOT_FOUND');
+    await pool.execute(
+      'UPDATE career_groups SET name = ?, display_order = ?, is_active = ?, updated_at = NOW() WHERE id = ?',
+      [name || existing.name, display_order !== undefined ? display_order : existing.display_order,
+       is_active !== undefined ? (is_active ? 1 : 0) : existing.is_active, req.params.id]
+    );
+    const [[group]] = await pool.execute('SELECT * FROM career_groups WHERE id = ?', [req.params.id]);
+    res.json({ success: true, data: { group } });
+  } catch (err) { next(err); }
+});
+
+router.delete('/admin/career-groups/:id', adminAuth, async (req, res, next) => {
+  try {
+    const [[existing]] = await pool.execute('SELECT * FROM career_groups WHERE id = ?', [req.params.id]);
+    if (!existing) throw createError(404, 'Không tìm thấy nhóm ngành', 'NOT_FOUND');
+    await pool.execute('UPDATE career_groups SET is_active = 0, updated_at = NOW() WHERE id = ?', [req.params.id]);
+    res.json({ success: true, message: 'Đã vô hiệu hóa nhóm ngành' });
+  } catch (err) { next(err); }
+});
+
 // ── CAREERS CRUD ─────────────────────────────────
 router.get('/admin/careers', adminAuth, async (req, res, next) => {
   try {
-    const [rows] = await pool.execute('SELECT * FROM careers ORDER BY id ASC');
+    const [rows] = await pool.execute(
+      `SELECT c.*, cg.name AS group_name FROM careers c
+       LEFT JOIN career_groups cg ON c.career_group_id = cg.id
+       ORDER BY c.id ASC`
+    );
     res.json({ success: true, data: { careers: rows } });
   } catch (err) { next(err); }
 });
 
 router.post('/admin/careers', adminAuth, async (req, res, next) => {
   try {
-    const { holland_code, career_name, major_group, description, required_skills, learning_suggestion, is_active } = req.body;
-    if (!holland_code || !career_name || !major_group) {
-      throw createError(400, 'Mã Holland, tên nghề và nhóm ngành là bắt buộc', 'MISSING_FIELDS');
+    const { holland_code, career_name, career_group_id, major_group, description, required_skills, learning_suggestion, is_active } = req.body;
+    const groupName = major_group || '';
+    if (!holland_code || !career_name) {
+      throw createError(400, 'Mã Holland và tên nghề là bắt buộc', 'MISSING_FIELDS');
     }
 
     const [result] = await pool.execute(
-      `INSERT INTO careers (holland_code, career_name, major_group, description, required_skills, learning_suggestion, is_active)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [holland_code, career_name, major_group, description || null, required_skills || null,
-       learning_suggestion || null, is_active !== undefined ? (is_active ? 1 : 0) : 1]
+      `INSERT INTO careers (holland_code, career_name, career_group_id, major_group, description, required_skills, learning_suggestion, is_active)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [holland_code, career_name, career_group_id || null, groupName,
+       description || null, required_skills || null, learning_suggestion || null,
+       is_active !== undefined ? (is_active ? 1 : 0) : 1]
     );
-    const [[career]] = await pool.execute('SELECT * FROM careers WHERE id = ?', [result.insertId]);
+    const [[career]] = await pool.execute(
+      `SELECT c.*, cg.name AS group_name FROM careers c
+       LEFT JOIN career_groups cg ON c.career_group_id = cg.id WHERE c.id = ?`, [result.insertId]
+    );
     res.status(201).json({ success: true, data: { career } });
   } catch (err) { next(err); }
 });
 
 router.put('/admin/careers/:id', adminAuth, async (req, res, next) => {
   try {
-    const { holland_code, career_name, major_group, description, required_skills, learning_suggestion, is_active } = req.body;
+    const { holland_code, career_name, career_group_id, major_group, description, required_skills, learning_suggestion, is_active } = req.body;
     const [[existing]] = await pool.execute('SELECT * FROM careers WHERE id = ?', [req.params.id]);
     if (!existing) throw createError(404, 'Không tìm thấy ngành nghề', 'NOT_FOUND');
 
     await pool.execute(
-      `UPDATE careers SET holland_code = ?, career_name = ?, major_group = ?, description = ?,
+      `UPDATE careers SET holland_code = ?, career_name = ?, career_group_id = ?, major_group = ?, description = ?,
        required_skills = ?, learning_suggestion = ?, is_active = ?, updated_at = NOW()
        WHERE id = ?`,
       [
         holland_code || existing.holland_code,
         career_name || existing.career_name,
-        major_group || existing.major_group,
+        career_group_id !== undefined ? career_group_id : existing.career_group_id,
+        major_group !== undefined ? major_group : existing.major_group,
         description !== undefined ? description : existing.description,
         required_skills !== undefined ? required_skills : existing.required_skills,
         learning_suggestion !== undefined ? learning_suggestion : existing.learning_suggestion,
@@ -212,7 +267,10 @@ router.put('/admin/careers/:id', adminAuth, async (req, res, next) => {
         req.params.id,
       ]
     );
-    const [[career]] = await pool.execute('SELECT * FROM careers WHERE id = ?', [req.params.id]);
+    const [[career]] = await pool.execute(
+      `SELECT c.*, cg.name AS group_name FROM careers c
+       LEFT JOIN career_groups cg ON c.career_group_id = cg.id WHERE c.id = ?`, [req.params.id]
+    );
     res.json({ success: true, data: { career } });
   } catch (err) { next(err); }
 });

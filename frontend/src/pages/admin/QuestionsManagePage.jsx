@@ -3,24 +3,11 @@ import api from '../../services/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import SortIcon from '../../components/ui/SortIcon';
+import Pagination from '../../components/ui/Pagination';
 import { toast } from '../../components/ui/Toast';
 
 const emptyQuestion = { content: '', holland_type: 'R', order_number: '', is_active: 1 };
-
-const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
-
-function SortIcon({ active, dir }) {
-  return (
-    <span className="inline-flex flex-col ml-1.5 -space-y-0.5">
-      <svg className={`w-2.5 h-2.5 ${active && dir === 'asc' ? 'text-primary-600' : 'text-gray-300'}`} viewBox="0 0 10 6" fill="currentColor">
-        <path d="M5 0L10 6H0z" />
-      </svg>
-      <svg className={`w-2.5 h-2.5 ${active && dir === 'desc' ? 'text-primary-600' : 'text-gray-300'}`} viewBox="0 0 10 6" fill="currentColor">
-        <path d="M5 6L0 0h10z" />
-      </svg>
-    </span>
-  );
-}
 
 export default function QuestionsManagePage() {
   const [questions, setQuestions] = useState([]);
@@ -198,36 +185,36 @@ export default function QuestionsManagePage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-gray-50">
-                <th className="py-3 pr-4 font-semibold text-gray-600 w-10 text-left cursor-pointer select-none hover:bg-gray-100 rounded-l-lg transition-colors" onClick={() => handleSort('id')}>
-                  <span className="inline-flex items-center"># <SortIcon active={sortKey === 'id'} dir={sortDir} /></span>
+                <th className="py-2 pr-4 font-semibold text-gray-600 w-10 text-left cursor-pointer select-none hover:bg-gray-100 rounded-l-lg transition-colors" onClick={() => handleSort('id')}>
+                  <span className="inline-flex items-center text-xs"># <SortIcon active={sortKey === 'id'} dir={sortDir} /></span>
                 </th>
-                <th className="py-3 pr-4 font-semibold text-gray-600 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('content')}>
-                  <span className="inline-flex items-center">Nội dung <SortIcon active={sortKey === 'content'} dir={sortDir} /></span>
+                <th className="py-2 pr-4 font-semibold text-gray-600 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('content')}>
+                  <span className="inline-flex items-center text-xs">Nội dung <SortIcon active={sortKey === 'content'} dir={sortDir} /></span>
                 </th>
-                <th className="py-3 pr-4 font-semibold text-gray-600 w-32 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('holland_type')}>
-                  <span className="inline-flex items-center">Nhóm <SortIcon active={sortKey === 'holland_type'} dir={sortDir} /></span>
+                <th className="py-2 pr-4 font-semibold text-gray-600 w-32 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('holland_type')}>
+                  <span className="inline-flex items-center text-xs">Nhóm <SortIcon active={sortKey === 'holland_type'} dir={sortDir} /></span>
                 </th>
-                <th className="py-3 pr-4 font-semibold text-gray-600 w-20 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('order_number')}>
-                  <span className="inline-flex items-center">Thứ tự <SortIcon active={sortKey === 'order_number'} dir={sortDir} /></span>
+                <th className="py-2 pr-4 font-semibold text-gray-600 w-20 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('order_number')}>
+                  <span className="inline-flex items-center text-xs">Thứ tự <SortIcon active={sortKey === 'order_number'} dir={sortDir} /></span>
                 </th>
-                <th className="py-3 pr-4 font-semibold text-gray-600 w-24 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('is_active')}>
-                  <span className="inline-flex items-center">Trạng thái <SortIcon active={sortKey === 'is_active'} dir={sortDir} /></span>
+                <th className="py-2 pr-4 font-semibold text-gray-600 w-24 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('is_active')}>
+                  <span className="inline-flex items-center text-xs">Trạng thái <SortIcon active={sortKey === 'is_active'} dir={sortDir} /></span>
                 </th>
-                <th className="py-3 font-semibold text-gray-600 w-28 text-left rounded-r-lg">Thao tác</th>
+                <th className="py-2 font-semibold text-gray-600 w-28 text-left rounded-r-lg text-xs">Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {paged.map((q, i) => (
                 <tr key={q.id} className={`border-b last:border-0 hover:bg-gray-50 ${!q.is_active ? 'opacity-50' : ''}`}>
-                  <td className="py-2 pr-4 text-gray-400">{idxStart + i + 1}</td>
-                  <td className="py-2 pr-4 max-w-md">{q.content}</td>
-                  <td className="py-2 pr-4">
+                  <td className="py-1.5 pr-4 text-gray-400">{idxStart + i + 1}</td>
+                  <td className="py-1.5 pr-4 max-w-md">{q.content}</td>
+                  <td className="py-1.5 pr-4">
                     <span className="px-2 py-0.5 text-xs font-bold rounded text-white whitespace-nowrap" style={{ backgroundColor: getTypeColor(q.holland_type) }}>
                       {q.holland_type} - {getTypeName(q.holland_type)}
                     </span>
                   </td>
-                  <td className="py-2 pr-4 text-gray-500">{q.order_number}</td>
-                  <td className="py-2 pr-4">
+                  <td className="py-1.5 pr-4 text-gray-500">{q.order_number}</td>
+                  <td className="py-1.5 pr-4">
                     <span className={`px-2 py-0.5 text-xs rounded-full font-medium whitespace-nowrap ${q.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {q.is_active ? 'Hoạt động' : 'Vô hiệu'}
                     </span>
@@ -249,35 +236,12 @@ export default function QuestionsManagePage() {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between pt-4 border-t mt-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">{idxStart + 1}-{Math.min(idxStart + pageSize, sorted.length)} / {sorted.length}</span>
-            <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
-              className="text-xs border border-gray-300 rounded px-2 py-1 outline-none">
-              {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n} / trang</option>)}
-            </select>
-          </div>
-          {totalPages > 1 && (
-          <div className="flex gap-1">
-            <button onClick={() => setPage(1)} disabled={page <= 1}
-              className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">«</button>
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}
-              className="px-3 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">Trước</button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1).map((p, i, arr) => (
-              <span key={p}>
-                {i > 0 && arr[i - 1] !== p - 1 && <span className="px-1 text-gray-300">...</span>}
-                <button onClick={() => setPage(p)}
-                  className={`px-3 py-1 text-xs border rounded ${p === page ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-gray-50'}`}>{p}</button>
-              </span>
-            ))}
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-              className="px-3 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">Sau</button>
-            <button onClick={() => setPage(totalPages)} disabled={page >= totalPages}
-              className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">»</button>
-          </div>
-          )}
-        </div>
+        <Pagination
+          page={page} totalPages={totalPages} pageSize={pageSize} total={sorted.length}
+          idxStart={idxStart}
+          onPageChange={setPage}
+          onPageSizeChange={(n) => { setPageSize(n); setPage(1); }}
+        />
       </Card>
 
       {/* Question create/edit modal */}

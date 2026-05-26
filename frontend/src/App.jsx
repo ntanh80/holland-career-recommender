@@ -13,6 +13,7 @@ import UsersListPage from './pages/admin/UsersListPage';
 import ResultsListPage from './pages/admin/ResultsListPage';
 import EmailLogsPage from './pages/admin/EmailLogsPage';
 import HollandTypesManagePage from './pages/admin/HollandTypesManagePage';
+import CareerGroupsManagePage from './pages/admin/CareerGroupsManagePage';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="users" element={<UsersListPage />} />
         <Route path="results" element={<ResultsListPage />} />
         <Route path="email-logs" element={<EmailLogsPage />} />
+        <Route path="career-groups" element={<CareerGroupsManagePage />} />
         <Route path="holland-types" element={<HollandTypesManagePage />} />
       </Route>
     </Routes>
