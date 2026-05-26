@@ -5,12 +5,12 @@ const HOLLAND_TYPES = ['R', 'I', 'A', 'S', 'E', 'C'];
 const PRIORITY_MAP = { R: 0, I: 1, A: 2, S: 3, E: 4, C: 5 };
 
 const TYPE_DESCRIPTIONS = {
-  R: { name: 'Realistic - Kỹ thuật', color: '#e74c3c', description: 'Bạn là người thực tế, thích làm việc với máy móc, công cụ và các hoạt động ngoài trời. Bạn giải quyết vấn đề bằng hành động cụ thể.' },
-  I: { name: 'Investigative - Nghiên cứu', color: '#3498db', description: 'Bạn là người thích phân tích, nghiên cứu và tìm hiểu bản chất của sự vật. Bạn suy nghĩ logic và thích khám phá kiến thức mới.' },
-  A: { name: 'Artistic - Nghệ thuật', color: '#9b59b6', description: 'Bạn là người sáng tạo, có óc thẩm mỹ và thích thể hiện bản thân qua nghệ thuật. Bạn đề cao sự độc đáo và tự do biểu đạt.' },
-  S: { name: 'Social - Xã hội', color: '#2ecc71', description: 'Bạn là người thích giúp đỡ, chia sẻ và làm việc với con người. Bạn có khả năng đồng cảm và thích đóng góp cho cộng đồng.' },
-  E: { name: 'Enterprising - Quản lý', color: '#f39c12', description: 'Bạn là người năng động, thích lãnh đạo và thuyết phục. Bạn có tham vọng và thích chinh phục thử thách trong kinh doanh.' },
-  C: { name: 'Conventional - Quy củ', color: '#1abc9c', description: 'Bạn là người tỉ mỉ, cẩn thận và thích làm việc với dữ liệu. Bạn coi trọng quy trình, tổ chức và sự chính xác.' },
+  R: { name: 'Realistic - Kỹ thuật', color: '#e74c3c', description: 'Bạn thích làm việc với những vật cụ thể, máy móc, dụng cụ, cây cối, con vật hoặc các hoạt động ngoài trời. Bạn giải quyết vấn đề bằng hành động thực tế.' },
+  I: { name: 'Investigative - Nghiên cứu', color: '#3498db', description: 'Bạn thích quan sát, tìm tòi, điều tra, phân tích, đánh giá hoặc giải quyết vấn đề. Bạn suy nghĩ logic và ham học hỏi.' },
+  A: { name: 'Artistic - Nghệ thuật', color: '#9b59b6', description: 'Bạn có khả năng nghệ thuật, sáng tác, trực giác và thích làm việc trong các tình huống không có kế hoạch trước, dùng trí tưởng tượng và sáng tạo.' },
+  S: { name: 'Social - Xã hội', color: '#2ecc71', description: 'Bạn thích làm việc cung cấp hoặc làm sáng tỏ thông tin, thích giúp đỡ, huấn luyện, chữa trị hoặc chăm sóc người khác, có khả năng về ngôn ngữ.' },
+  E: { name: 'Enterprising - Quản lý', color: '#f39c12', description: 'Bạn thích làm việc với người khác, có khả năng tác động, thuyết phục, thể hiện, lãnh đạo hoặc quản lý mục tiêu tổ chức và lợi ích kinh tế.' },
+  C: { name: 'Conventional - Nghiệp vụ', color: '#1abc9c', description: 'Bạn thích làm việc với dữ liệu, con số, có khả năng làm việc văn phòng, thống kê. Bạn tỉ mỉ, cẩn thận và thích làm theo hướng dẫn.' },
 };
 
 function calculateScores(answers, questions) {
@@ -59,23 +59,54 @@ function generateResultToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
+function permute3(code) {
+  const [a, b, c] = code.split('');
+  return [
+    a + b + c, a + c + b,
+    b + a + c, b + c + a,
+    c + a + b, c + b + a,
+  ];
+}
+
 async function getCareerRecommendations(hollandCode) {
   const code = hollandCode.toUpperCase();
-  let careers = [];
+  const top3 = code.split('');
+  const seen = new Set();
+  const careers = [];
 
-  const [exact] = await pool.execute(
-    'SELECT * FROM careers WHERE holland_code = ? AND is_active = 1', [code]
-  );
-  careers = exact;
+  // Priority 1: exact match on any permutation of the 3-letter code
+  const perms = permute3(code);
+  for (const p of perms) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM careers WHERE holland_code = ? AND is_active = 1', [p]
+    );
+    for (const r of rows) {
+      if (!seen.has(r.id)) { seen.add(r.id); careers.push({ ...r, _match: 'exact' }); }
+    }
+  }
 
-  if (careers.length < 5) {
-    const codes = [code[0] + code[1], code[0] + code[2]];
-    for (const c of codes) {
-      const [rows] = await pool.execute(
-        'SELECT * FROM careers WHERE holland_code LIKE ? AND is_active = 1 AND holland_code != ? LIMIT 5',
-        [`${c}%`, code]
-      );
-      careers = careers.concat(rows);
+  // Priority 2: 2-letter prefix matches from top 3 letters
+  const pairs = [
+    top3[0] + top3[1], top3[0] + top3[2],
+    top3[1] + top3[0], top3[1] + top3[2],
+    top3[2] + top3[0], top3[2] + top3[1],
+  ];
+  for (const pair of [...new Set(pairs)]) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM careers WHERE holland_code LIKE ? AND is_active = 1 LIMIT 10', [`${pair}%`]
+    );
+    for (const r of rows) {
+      if (!seen.has(r.id)) { seen.add(r.id); careers.push({ ...r, _match: 'two_letter' }); }
+    }
+  }
+
+  // Priority 3: single letter matches from top types
+  for (const t of top3) {
+    const [rows] = await pool.execute(
+      'SELECT * FROM careers WHERE holland_code LIKE ? AND is_active = 1 LIMIT 5', [`${t}%`]
+    );
+    for (const r of rows) {
+      if (!seen.has(r.id)) { seen.add(r.id); careers.push({ ...r, _match: 'single' }); }
     }
   }
 

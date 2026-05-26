@@ -7,6 +7,7 @@ const { adminAuth, superAdminOnly } = require('../middleware/auth');
 const { createError } = require('../middleware/errorHandler');
 const { sendResultEmail } = require('../services/emailService');
 const emailLogModel = require('../models/emailLogModel');
+const hollandTypeModel = require('../models/hollandTypeModel');
 
 const router = Router();
 
@@ -135,6 +136,32 @@ router.delete('/admin/questions/:id', adminAuth, async (req, res, next) => {
 
     await pool.execute('UPDATE questions SET is_active = 0, updated_at = NOW() WHERE id = ?', [req.params.id]);
     res.json({ success: true, message: 'Đã vô hiệu hóa câu hỏi' });
+  } catch (err) { next(err); }
+});
+
+// ── HOLLAND TYPES ────────────────────────────────
+router.get('/admin/holland-types', adminAuth, async (req, res, next) => {
+  try {
+    const types = await hollandTypeModel.findAll();
+    res.json({ success: true, data: { types } });
+  } catch (err) { next(err); }
+});
+
+router.put('/admin/holland-types/:code', adminAuth, async (req, res, next) => {
+  try {
+    const { name_en, name_vn, description, color, display_order } = req.body;
+    const existing = await hollandTypeModel.findByCode(req.params.code);
+    if (!existing) throw createError(404, 'Không tìm thấy nhóm Holland', 'NOT_FOUND');
+
+    await hollandTypeModel.update(req.params.code, {
+      name_en: name_en || existing.name_en,
+      name_vn: name_vn || existing.name_vn,
+      description: description !== undefined ? description : existing.description,
+      color: color || existing.color,
+      display_order: display_order !== undefined ? display_order : existing.display_order,
+    });
+    const updated = await hollandTypeModel.findByCode(req.params.code);
+    res.json({ success: true, data: { type: updated } });
   } catch (err) { next(err); }
 });
 

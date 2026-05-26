@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/admin/dashboard', label: 'Tổng quan', icon: '📊' },
   { to: '/admin/questions', label: 'Câu hỏi', icon: '📝' },
   { to: '/admin/careers', label: 'Ngành nghề', icon: '💼' },
+  { to: '/admin/holland-types', label: 'Nhóm Holland', icon: '🏷️' },
   { to: '/admin/users', label: 'Người dùng', icon: '👥' },
   { to: '/admin/results', label: 'Kết quả', icon: '📋' },
   { to: '/admin/email-logs', label: 'Email', icon: '📧' },

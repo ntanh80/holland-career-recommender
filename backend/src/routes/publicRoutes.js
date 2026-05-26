@@ -3,6 +3,7 @@ const userModel = require('../models/userModel');
 const questionModel = require('../models/questionModel');
 const answerModel = require('../models/answerModel');
 const resultModel = require('../models/resultModel');
+const hollandTypeModel = require('../models/hollandTypeModel');
 const { validate, submitSurveyRules } = require('../middleware/validators');
 const { submitLimiter, apiLimiter } = require('../middleware/rateLimiter');
 const { createError } = require('../middleware/errorHandler');
@@ -118,6 +119,13 @@ router.get('/careers/recommendations', apiLimiter, async (req, res, next) => {
     if (!code || code.length < 3) throw createError(400, 'Mã Holland không hợp lệ', 'INVALID_CODE');
     const careers = await hollandService.getCareerRecommendations(code);
     res.json({ success: true, data: { careers } });
+  } catch (err) { next(err); }
+});
+
+router.get('/holland-types', async (req, res, next) => {
+  try {
+    const types = await hollandTypeModel.findAll();
+    res.json({ success: true, data: { types } });
   } catch (err) { next(err); }
 });
 

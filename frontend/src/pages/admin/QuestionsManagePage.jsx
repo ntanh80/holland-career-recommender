@@ -1,23 +1,43 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../services/api';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { toast } from '../../components/ui/Toast';
 
-const TYPE_LABELS = { R: 'Realistic', I: 'Investigative', A: 'Artistic', S: 'Social', E: 'Enterprising', C: 'Conventional' };
-
 const emptyQuestion = { content: '', holland_type: 'R', order_number: '', is_active: 1 };
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
+
+function SortIcon({ active, dir }) {
+  return (
+    <span className="inline-flex flex-col ml-1.5 -space-y-0.5">
+      <svg className={`w-2.5 h-2.5 ${active && dir === 'asc' ? 'text-primary-600' : 'text-gray-300'}`} viewBox="0 0 10 6" fill="currentColor">
+        <path d="M5 0L10 6H0z" />
+      </svg>
+      <svg className={`w-2.5 h-2.5 ${active && dir === 'desc' ? 'text-primary-600' : 'text-gray-300'}`} viewBox="0 0 10 6" fill="currentColor">
+        <path d="M5 6L0 0h10z" />
+      </svg>
+    </span>
+  );
+}
 
 export default function QuestionsManagePage() {
   const [questions, setQuestions] = useState([]);
+  const [types, setTypes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState('');
+  const [sortKey, setSortKey] = useState('order_number');
+  const [sortDir, setSortDir] = useState('asc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+
+  // Modals
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyQuestion);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
   const fetchQuestions = useCallback(() => {
     api.get('/admin/questions')
       .then(res => setQuestions(res.data.questions))
@@ -25,7 +45,43 @@ export default function QuestionsManagePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { fetchQuestions(); }, [fetchQuestions]);
+  const fetchTypes = useCallback(() => {
+    api.get('/admin/holland-types')
+      .then(res => setTypes(res.data.types))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => { fetchQuestions(); fetchTypes(); }, [fetchQuestions, fetchTypes]);
+
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+    setPage(1);
+  };
+
+  const sorted = useMemo(() => {
+    const filtered = filterType ? questions.filter(q => q.holland_type === filterType) : [...questions];
+    filtered.sort((a, b) => {
+      let va = a[sortKey];
+      let vb = b[sortKey];
+      if (sortKey === 'is_active') { va = va ? 1 : 0; vb = vb ? 1 : 0; }
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return filtered;
+  }, [questions, filterType, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paged = sorted.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
 
   const openCreate = () => {
     setEditing(null);
@@ -53,11 +109,8 @@ export default function QuestionsManagePage() {
       }
       setShowModal(false);
       fetchQuestions();
-    } catch (err) {
-      toast.error(err.message);
-    } finally {
-      setSaving(false);
-    }
+    } catch (err) { toast.error(err.message); }
+    finally { setSaving(false); }
   };
 
   const handleDelete = async () => {
@@ -66,12 +119,15 @@ export default function QuestionsManagePage() {
       toast.success('Đã vô hiệu hóa câu hỏi');
       setDeleteId(null);
       fetchQuestions();
-    } catch (err) {
-      toast.error(err.message);
-    }
+    } catch (err) { toast.error(err.message); }
   };
 
   const setField = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const getTypeName = (code) => { const t = types.find(t => t.code === code); return t ? t.name_vn : code; };
+  const getTypeColor = (code) => { const t = types.find(t => t.code === code); return t?.color || '#94a3b8'; };
+
+  const idxStart = (page - 1) * pageSize;
 
   if (loading) return <LoadingSpinner message="Đang tải..." />;
 
@@ -80,37 +136,69 @@ export default function QuestionsManagePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Quản lý câu hỏi</h1>
-          <p className="text-sm text-gray-500">{questions.length} câu hỏi</p>
+          <p className="text-sm text-gray-500">{sorted.length} câu hỏi{filterType ? ` (nhóm ${filterType})` : ''}</p>
         </div>
         <Button onClick={openCreate}>+ Thêm câu hỏi</Button>
       </div>
 
+      {/* Filter bar */}
+      <Card className="!p-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm font-medium text-gray-600">Lọc theo nhóm:</span>
+          <button onClick={() => { setFilterType(''); setPage(1); }}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${!filterType ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+            Tất cả ({questions.length})
+          </button>
+          {types.map(t => {
+            const count = questions.filter(q => q.holland_type === t.code).length;
+            return (
+              <button key={t.code} onClick={() => { setFilterType(t.code); setPage(1); }}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${filterType === t.code ? 'text-white' : 'text-gray-600 hover:bg-gray-200'}`}
+                style={filterType === t.code ? { backgroundColor: t.color } : { backgroundColor: '#f1f5f9' }}>
+                {t.code} - {t.name_vn} ({count})
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* Table */}
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left">
-                <th className="pb-3 pr-4 font-semibold text-gray-500 w-10">#</th>
-                <th className="pb-3 pr-4 font-semibold text-gray-500">Nội dung</th>
-                <th className="pb-3 pr-4 font-semibold text-gray-500 w-28">Nhóm</th>
-                <th className="pb-3 pr-4 font-semibold text-gray-500 w-20">Thứ tự</th>
-                <th className="pb-3 pr-4 font-semibold text-gray-500 w-24">Trạng thái</th>
-                <th className="pb-3 font-semibold text-gray-500 w-28">Thao tác</th>
+              <tr className="border-b bg-gray-50">
+                <th className="py-3 pr-4 font-semibold text-gray-600 w-10 text-left cursor-pointer select-none hover:bg-gray-100 rounded-l-lg transition-colors" onClick={() => handleSort('id')}>
+                  <span className="inline-flex items-center"># <SortIcon active={sortKey === 'id'} dir={sortDir} /></span>
+                </th>
+                <th className="py-3 pr-4 font-semibold text-gray-600 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('content')}>
+                  <span className="inline-flex items-center">Nội dung <SortIcon active={sortKey === 'content'} dir={sortDir} /></span>
+                </th>
+                <th className="py-3 pr-4 font-semibold text-gray-600 w-32 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('holland_type')}>
+                  <span className="inline-flex items-center">Nhóm <SortIcon active={sortKey === 'holland_type'} dir={sortDir} /></span>
+                </th>
+                <th className="py-3 pr-4 font-semibold text-gray-600 w-20 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('order_number')}>
+                  <span className="inline-flex items-center">Thứ tự <SortIcon active={sortKey === 'order_number'} dir={sortDir} /></span>
+                </th>
+                <th className="py-3 pr-4 font-semibold text-gray-600 w-24 text-left cursor-pointer select-none hover:bg-gray-100 transition-colors" onClick={() => handleSort('is_active')}>
+                  <span className="inline-flex items-center">Trạng thái <SortIcon active={sortKey === 'is_active'} dir={sortDir} /></span>
+                </th>
+                <th className="py-3 font-semibold text-gray-600 w-28 text-left rounded-r-lg">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {questions.map((q, i) => (
+              {paged.map((q, i) => (
                 <tr key={q.id} className={`border-b last:border-0 hover:bg-gray-50 ${!q.is_active ? 'opacity-50' : ''}`}>
-                  <td className="py-2 pr-4 text-gray-400">{i + 1}</td>
+                  <td className="py-2 pr-4 text-gray-400">{idxStart + i + 1}</td>
                   <td className="py-2 pr-4 max-w-md">{q.content}</td>
                   <td className="py-2 pr-4">
-                    <span className="px-2 py-0.5 text-xs font-bold rounded text-white" style={{ backgroundColor: ({R:'#e74c3c',I:'#3498db',A:'#9b59b6',S:'#2ecc71',E:'#f39c12',C:'#1abc9c'})[q.holland_type] }}>
-                      {q.holland_type} - {TYPE_LABELS[q.holland_type]}
+                    <span className="px-2 py-0.5 text-xs font-bold rounded text-white whitespace-nowrap" style={{ backgroundColor: getTypeColor(q.holland_type) }}>
+                      {q.holland_type} - {getTypeName(q.holland_type)}
                     </span>
                   </td>
                   <td className="py-2 pr-4 text-gray-500">{q.order_number}</td>
                   <td className="py-2 pr-4">
-                    <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${q.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`px-2 py-0.5 text-xs rounded-full font-medium whitespace-nowrap ${q.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {q.is_active ? 'Hoạt động' : 'Vô hiệu'}
                     </span>
                   </td>
@@ -124,15 +212,45 @@ export default function QuestionsManagePage() {
                   </td>
                 </tr>
               ))}
-              {questions.length === 0 && (
-                <tr><td colSpan={6} className="py-8 text-center text-gray-400">Chưa có câu hỏi nào</td></tr>
+              {paged.length === 0 && (
+                <tr><td colSpan={6} className="py-8 text-center text-gray-400">Không có câu hỏi nào</td></tr>
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between pt-4 border-t mt-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-500">{idxStart + 1}-{Math.min(idxStart + pageSize, sorted.length)} / {sorted.length}</span>
+            <select value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+              className="text-xs border border-gray-300 rounded px-2 py-1 outline-none">
+              {PAGE_SIZE_OPTIONS.map(n => <option key={n} value={n}>{n} / trang</option>)}
+            </select>
+          </div>
+          {totalPages > 1 && (
+          <div className="flex gap-1">
+            <button onClick={() => setPage(1)} disabled={page <= 1}
+              className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">«</button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page <= 1}
+              className="px-3 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">Trước</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1).map((p, i, arr) => (
+              <span key={p}>
+                {i > 0 && arr[i - 1] !== p - 1 && <span className="px-1 text-gray-300">...</span>}
+                <button onClick={() => setPage(p)}
+                  className={`px-3 py-1 text-xs border rounded ${p === page ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-gray-50'}`}>{p}</button>
+              </span>
+            ))}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-3 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">Sau</button>
+            <button onClick={() => setPage(totalPages)} disabled={page >= totalPages}
+              className="px-2 py-1 text-xs border rounded disabled:opacity-30 hover:bg-gray-50">»</button>
+          </div>
+          )}
+        </div>
       </Card>
 
-      {/* Modal */}
+      {/* Question create/edit modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowModal(false)}>
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6" onClick={e => e.stopPropagation()}>
@@ -148,7 +266,7 @@ export default function QuestionsManagePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nhóm Holland</label>
                   <select value={form.holland_type} onChange={e => setField('holland_type', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm">
-                    {Object.entries(TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{k} - {v}</option>)}
+                    {types.map(t => <option key={t.code} value={t.code}>{t.code} - {t.name_vn}</option>)}
                   </select>
                 </div>
                 <div>

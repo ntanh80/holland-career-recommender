@@ -20,7 +20,7 @@ const TYPE_NAMES = {
   A: 'Nhóm A: Artistic — Nghệ thuật, Sáng tạo',
   S: 'Nhóm S: Social — Xã hội, Hỗ trợ',
   E: 'Nhóm E: Enterprising — Quản lý, Kinh doanh',
-  C: 'Nhóm C: Conventional — Quy củ, Dữ liệu',
+  C: 'Nhóm C: Conventional — Nghiệp vụ, Dữ liệu',
 };
 
 function formatTime(seconds) {

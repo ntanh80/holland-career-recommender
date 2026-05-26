@@ -65,7 +65,7 @@ INSERT INTO questions (content, holland_type, order_number) VALUES
 ('Tôi thích gặp gỡ, giao lưu và xây dựng các mối quan hệ rộng rãi với nhiều người.', 'E', 49),
 ('Tôi có xu hướng chủ động đề xuất ý tưởng và bắt tay vào làm thay vì chờ đợi sự phân công.', 'E', 50);
 
--- C: Conventional — Quy củ, Tổ chức (10 câu, order 51-60)
+-- C: Conventional — Nghiệp vụ, Tổ chức (10 câu, order 51-60)
 INSERT INTO questions (content, holland_type, order_number) VALUES
 ('Tôi thích sắp xếp sách vở, tài liệu, đồ dùng cá nhân gọn gàng, ngăn nắp theo trật tự nhất định.', 'C', 51),
 ('Tôi thích làm việc với các con số, bảng biểu và dữ liệu chi tiết như điểm số, thống kê.', 'C', 52),

@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
 const HOLLAND_TYPES = [
-  { type: 'R', name: 'Realistic', title: 'Kỹ thuật', icon: '🔧', desc: 'Thích làm việc với máy móc, công cụ, thiết bị. Thiên về hành động thực tế và giải quyết vấn đề cụ thể.', careers: 'Kỹ sư, Thợ cơ khí, Nông dân, Kiến trúc sư...' },
-  { type: 'I', name: 'Investigative', title: 'Nghiên cứu', icon: '🔬', desc: 'Thích quan sát, phân tích, nghiên cứu. Đam mê khám phá tri thức và giải quyết vấn đề phức tạp.', careers: 'Bác sĩ, Nhà khoa học, Lập trình viên, Dược sĩ...' },
-  { type: 'A', name: 'Artistic', title: 'Nghệ thuật', icon: '🎨', desc: 'Thích sáng tạo, thể hiện bản thân. Đề cao thẩm mỹ, sự độc đáo và tự do biểu đạt.', careers: 'Thiết kế, Viết lách, Âm nhạc, Diễn viên, Kiến trúc...' },
-  { type: 'S', name: 'Social', title: 'Xã hội', icon: '🤝', desc: 'Thích giúp đỡ, giảng dạy, chia sẻ. Có khả năng đồng cảm và kết nối với mọi người.', careers: 'Giáo viên, Tư vấn viên, Bác sĩ, Nhân viên xã hội...' },
-  { type: 'E', name: 'Enterprising', title: 'Quản lý', icon: '📈', desc: 'Thích lãnh đạo, thuyết phục, kinh doanh. Năng động, tham vọng và thích chinh phục thử thách.', careers: 'CEO, Marketing, Bán hàng, Luật sư, Chính trị gia...' },
-  { type: 'C', name: 'Conventional', title: 'Quy củ', icon: '📊', desc: 'Thích tổ chức, sắp xếp, làm việc với dữ liệu. Tỉ mỉ, cẩn thận và tuân thủ quy trình.', careers: 'Kế toán, Kiểm toán, Thư ký, Quản lý dữ liệu, Ngân hàng...' },
+  { type: 'R', name: 'Realistic', title: 'Kỹ thuật', icon: '🔧', desc: 'Thích làm việc với những vật cụ thể, máy móc, dụng cụ, cây cối, con vật hoặc các hoạt động ngoài trời.', careers: 'Kỹ sư, Đầu bếp, Thợ điện, Thợ cơ khí, Y tá điều dưỡng...' },
+  { type: 'I', name: 'Investigative', title: 'Nghiên cứu', icon: '🔬', desc: 'Thích quan sát, tìm tòi, điều tra, phân tích, đánh giá hoặc giải quyết vấn đề.', careers: 'Nhà khoa học, Dược sĩ, Kỹ sư phần mềm, Bác sĩ, Nhà sinh vật học...' },
+  { type: 'A', name: 'Artistic', title: 'Nghệ thuật', icon: '🎨', desc: 'Có khả năng nghệ thuật, sáng tác, trực giác và thích làm việc trong các tình huống không có kế hoạch trước, dùng trí tưởng tượng và sáng tạo.', careers: 'Thiết kế đồ họa, Kiến trúc sư, Diễn viên, Phóng viên, Nhiếp ảnh gia...' },
+  { type: 'S', name: 'Social', title: 'Xã hội', icon: '🤝', desc: 'Thích làm việc cung cấp hoặc làm sáng tỏ thông tin, thích giúp đỡ, huấn luyện, chữa trị hoặc chăm sóc sức khỏe cho người khác, có khả năng về ngôn ngữ.', careers: 'Giáo viên, Tư vấn học đường, Nhà trị liệu, Nhân viên xã hội, Thủ thư...' },
+  { type: 'E', name: 'Enterprising', title: 'Quản lý', icon: '📈', desc: 'Thích làm việc với người khác, có khả năng tác động, thuyết phục, thể hiện, lãnh đạo hoặc quản lý mục tiêu tổ chức, lợi ích kinh tế.', careers: 'Chủ doanh nghiệp, Quản lý khách sạn, Marketing, Bán hàng, Luật sư...' },
+  { type: 'C', name: 'Conventional', title: 'Nghiệp vụ', icon: '📊', desc: 'Thích làm việc với dữ liệu, con số, có khả năng làm việc văn phòng, thống kê, thực hiện công việc đòi hỏi chi tiết, tỉ mỉ, cẩn thận hoặc làm theo hướng dẫn.', careers: 'Kế toán, Kiểm toán, Thư ký pháp lý, Thu ngân ngân hàng, Thanh tra...' },
 ];
 
 export default function HomePage() {
@@ -32,11 +32,21 @@ export default function HomePage() {
 
       {/* Giới thiệu */}
       <section id="gioi-thieu" className="max-w-5xl mx-auto px-4 py-20">
-        <h2 className="text-3xl font-bold text-center mb-4">Holland/RIASEC là gì?</h2>
+        <h2 className="text-3xl font-bold text-center mb-4">Trắc nghiệm Holland/RIASEC là gì?</h2>
+        <p className="text-gray-600 text-center max-w-3xl mx-auto mb-4">
+          Trắc nghiệm Holland (RIASEC) được phát triển bởi nhà tâm lý học người Mỹ <strong>John L. Holland (1919–2008)</strong>,
+          tác giả của <em>Lý thuyết lựa chọn nghề nghiệp</em>. Mô hình của ông đã được ứng dụng rộng rãi trên thế giới
+          trong lĩnh vực hướng nghiệp.
+        </p>
+        <p className="text-gray-600 text-center max-w-3xl mx-auto mb-4">
+          Luận điểm cốt lõi của Holland: <strong>"Thiên hướng nghề nghiệp chính là sự biểu hiện cá tính của mỗi con người"</strong>.
+          Ông chia tính cách nghề nghiệp thành 6 nhóm, được biểu diễn trên hai phương diện: cá tính và môi trường làm việc.
+        </p>
         <p className="text-gray-600 text-center max-w-3xl mx-auto mb-12">
-          Trắc nghiệm Holland (RIASEC) được phát triển bởi nhà tâm lý học John L. Holland.
-          Lý thuyết này chia tính cách nghề nghiệp thành 6 nhóm, giúp bạn xác định được
-          môi trường làm việc và ngành nghề phù hợp với tính cách của mình.
+          6 nhóm được sắp xếp trên một hình lục giác (RIASEC) dựa trên sở thích làm việc với các nhóm kích thích khác nhau:
+          con người, dữ liệu, đối tượng và ý tưởng. Khoảng cách giữa các nhóm trên lục giác cho biết mức độ khác biệt
+          của các sở thích. Kết quả trắc nghiệm là một <strong>mã Holland gồm 3 chữ cái</strong>, đại diện cho ba nhóm tính cách
+          nổi trội nhất của bạn.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {HOLLAND_TYPES.map(h => (
