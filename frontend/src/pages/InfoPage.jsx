@@ -101,19 +101,6 @@ export default function InfoPage() {
           {errors.school && <p className="error-text">{errors.school.message}</p>}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="label-field">Ngành học mong muốn *</label>
-            <input {...register('desired_major', { required: 'Vui lòng nhập ngành học mong muốn' })} className={`input-field ${errors.desired_major ? 'input-error' : ''}`} placeholder="VD: Công nghệ thông tin..." />
-            {errors.desired_major && <p className="error-text">{errors.desired_major.message}</p>}
-          </div>
-          <div>
-            <label className="label-field">Trường đại học mong muốn *</label>
-            <input {...register('desired_university', { required: 'Vui lòng nhập trường đại học mong muốn' })} className={`input-field ${errors.desired_university ? 'input-error' : ''}`} placeholder="VD: Đại học Bách Khoa..." />
-            {errors.desired_university && <p className="error-text">{errors.desired_university.message}</p>}
-          </div>
-        </div>
-
         <div>
           <label className="label-field">Lớp</label>
           <input {...register('class_name')} className="input-field" placeholder="VD: 12A1" />
@@ -123,6 +110,23 @@ export default function InfoPage() {
           <label className="label-field">Tỉnh/Thành *</label>
           <input {...register('province', { required: 'Vui lòng nhập tỉnh/thành' })} className={`input-field ${errors.province ? 'input-error' : ''}`} placeholder="VD: TP.HCM, Hà Nội..." />
           {errors.province && <p className="error-text">{errors.province.message}</p>}
+        </div>
+
+        {/* Nhóm nguyện vọng */}
+        <div className="pt-4 border-t">
+          <h3 className="text-base font-semibold text-gray-800 mb-3">Nguyện vọng</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label-field">Ngành học mong muốn *</label>
+              <input {...register('desired_major', { required: 'Vui lòng nhập ngành học mong muốn' })} className={`input-field ${errors.desired_major ? 'input-error' : ''}`} placeholder="VD: Công nghệ thông tin..." />
+              {errors.desired_major && <p className="error-text">{errors.desired_major.message}</p>}
+            </div>
+            <div>
+              <label className="label-field">Trường đại học mong muốn *</label>
+              <input {...register('desired_university', { required: 'Vui lòng nhập trường đại học mong muốn' })} className={`input-field ${errors.desired_university ? 'input-error' : ''}`} placeholder="VD: Đại học Bách Khoa..." />
+              {errors.desired_university && <p className="error-text">{errors.desired_university.message}</p>}
+            </div>
+          </div>
         </div>
 
         <div className="flex items-start gap-3 pt-2">

@@ -1,3 +1,4 @@
-/*
-!.gitignore
-!/Holland/
+node_modules/
+.env
+dist/
+.superpowers/
