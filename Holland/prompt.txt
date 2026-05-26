@@ -1,0 +1,528 @@
+Có. Nên bổ sung thêm các yêu cầu về **UX chuyên nghiệp, dữ liệu nghề nghiệp, bảo mật dữ liệu cá nhân, SEO, quản trị nội dung, thống kê, lịch sử khảo sát, xuất PDF và gửi email đẹp**. Dưới đây là bản đã chỉnh sửa hoàn chỉnh để copy.
+
+```text
+Bạn là nhóm chuyên gia phát triển phần mềm đẳng cấp thế giới gồm:
+- Product Owner
+- Business Analyst
+- UX/UI Designer
+- Software Architect
+- Backend Developer
+- Frontend Developer
+- Database Engineer
+- Security Engineer
+- QA/Test Engineer
+- DevOps Engineer
+- Code Reviewer
+
+Nhiệm vụ:
+Xây dựng hoàn chỉnh website trắc nghiệm hướng nghiệp Holland/RIASEC gồm frontend, backend, database MySQL, hệ thống quản trị, gửi email kết quả và báo cáo kết quả chuyên nghiệp.
+
+==================================================
+I. MỤC TIÊU HỆ THỐNG
+==================================================
+
+Website cho phép học sinh, sinh viên hoặc người dùng thực hiện bài trắc nghiệm hướng nghiệp Holland/RIASEC. Sau khi hoàn thành bài khảo sát, hệ thống tự động tính điểm theo 6 nhóm Holland, hiển thị kết quả, gợi ý nhóm ngành/nghề phù hợp và gửi kết quả về email người thực hiện khảo sát.
+
+Hệ thống phải đạt các tiêu chí:
+- Giao diện hiện đại, chuyên nghiệp, dễ sử dụng.
+- Tối ưu trải nghiệm cho học sinh trên điện thoại.
+- Có khả năng triển khai thực tế.
+- Bảo mật dữ liệu cá nhân.
+- Dễ quản trị nội dung.
+- Dễ mở rộng thêm bài trắc nghiệm khác trong tương lai.
+- Có báo cáo kết quả rõ ràng, có thể gửi email hoặc xuất PDF.
+
+==================================================
+II. CHỨC NĂNG NGƯỜI DÙNG
+==================================================
+
+1. Trang chủ
+- Giới thiệu bài trắc nghiệm Holland/RIASEC.
+- Giải thích ngắn gọn 6 nhóm tính cách nghề nghiệp: R, I, A, S, E, C.
+- Nêu lợi ích của bài trắc nghiệm.
+- Có nút “Bắt đầu làm bài”.
+- Giao diện chuyên nghiệp, phù hợp tư vấn tuyển sinh và hướng nghiệp.
+
+2. Trang làm bài trắc nghiệm
+- Hiển thị câu hỏi trắc nghiệm Holland.
+- Có thanh tiến trình hoàn thành bài làm.
+- Có thể chia câu hỏi theo từng trang hoặc từng nhóm.
+- Cho phép chọn đáp án rõ ràng.
+- Cảnh báo nếu còn câu hỏi chưa trả lời.
+- Có nút quay lại, tiếp tục, hoàn thành.
+- Tự động lưu tạm câu trả lời trên trình duyệt để tránh mất dữ liệu khi tải lại trang.
+
+3. Trang nhập thông tin cá nhân
+
+Trước khi xem kết quả chi tiết, người dùng cần nhập thông tin:
+
+- Họ và tên *
+- Email *
+- Số điện thoại *
+- Nghề nghiệp/ngành nghề đang quan tâm
+- Bạn là... *
+    + Học sinh
+    + Sinh viên
+    + Phụ huynh
+    + Giáo viên
+    + Người đi làm
+    + Khác
+- Trường
+- Lớp
+- Tỉnh/Thành *
+- CAPTCHA *
+- Đồng ý cho hệ thống lưu thông tin để gửi kết quả và tư vấn hướng nghiệp *
+
+Hiển thị thông báo:
+
+“Vui lòng nhập thông tin chi tiết của bạn dưới đây để xem kết quả trắc nghiệm. Các trường có dấu (*) là bắt buộc nhập. Bạn vui lòng nhập đúng thông tin để kết quả được gửi về đúng địa chỉ email của mình.”
+
+4. Trang kết quả
+Hiển thị:
+- Họ tên người làm bài.
+- Mã Holland/RIASEC.
+- Điểm từng nhóm R, I, A, S, E, C.
+- Top 3 nhóm nổi bật.
+- Biểu đồ kết quả.
+- Mô tả đặc điểm tính cách nghề nghiệp.
+- Điểm mạnh.
+- Môi trường học tập/làm việc phù hợp.
+- Nhóm ngành phù hợp.
+- Nghề nghiệp gợi ý.
+- Kỹ năng nên phát triển.
+- Lời khuyên định hướng học tập/nghề nghiệp.
+
+5. Xuất và gửi kết quả
+Hệ thống cần:
+- Gửi email kết quả về cho người thực hiện khảo sát.
+- Cho phép tải kết quả dạng PDF.
+- Có nút “Gửi lại kết quả qua email”.
+- Có link xem lại kết quả online bằng mã tra cứu bảo mật.
+
+==================================================
+III. LOGIC HOLLAND/RIASEC
+==================================================
+
+Hệ thống tính điểm theo 6 nhóm:
+
+- R: Realistic - Kỹ thuật, thực tế
+- I: Investigative - Nghiên cứu, phân tích
+- A: Artistic - Nghệ thuật, sáng tạo
+- S: Social - Xã hội, hỗ trợ
+- E: Enterprising - Quản lý, kinh doanh
+- C: Conventional - Quy củ, dữ liệu
+
+Yêu cầu:
+- Tính tổng điểm từng nhóm.
+- Sắp xếp điểm từ cao đến thấp.
+- Xác định nhóm cao nhất.
+- Xác định top 2 và top 3 nhóm nổi bật.
+- Sinh mã Holland gồm 3 ký tự, ví dụ: IAS, SEC, RIA.
+- Gợi ý ngành nghề dựa trên mã Holland.
+- Nếu có nhiều nhóm bằng điểm, cần có quy tắc xử lý rõ ràng.
+
+==================================================
+IV. CHỨC NĂNG EMAIL
+==================================================
+
+Sau khi hoàn thành khảo sát, hệ thống tự động gửi email kết quả.
+
+Email cần có:
+- Tiêu đề email chuyên nghiệp.
+- Lời chào cá nhân hóa theo họ tên.
+- Mã Holland của người làm bài.
+- Điểm R, I, A, S, E, C.
+- Biểu đồ hoặc bảng điểm.
+- Mô tả nhóm tính cách.
+- Gợi ý ngành nghề.
+- Gợi ý nhóm ngành đào tạo.
+- Link xem lại kết quả online.
+- Thông tin liên hệ tư vấn nếu cần.
+
+Yêu cầu kỹ thuật:
+- Sử dụng Nodemailer hoặc SMTP service.
+- Có HTML email template.
+- Có ghi log trạng thái gửi email.
+- Có cơ chế gửi lại nếu gửi thất bại.
+- Có bảng email_logs trong MySQL.
+
+==================================================
+V. CHỨC NĂNG QUẢN TRỊ
+==================================================
+
+Admin có thể:
+
+1. Quản lý câu hỏi
+- Thêm, sửa, xóa câu hỏi.
+- Gán câu hỏi với nhóm R, I, A, S, E, C.
+- Bật/tắt trạng thái câu hỏi.
+- Sắp xếp thứ tự câu hỏi.
+
+2. Quản lý kết quả
+- Xem danh sách người đã làm khảo sát.
+- Xem chi tiết kết quả từng người.
+- Tìm kiếm theo tên, email, số điện thoại, trường, tỉnh/thành.
+- Lọc theo thời gian, nhóm Holland, tỉnh/thành, trường.
+
+3. Quản lý ngành nghề
+- Thêm, sửa, xóa ngành nghề.
+- Gán ngành nghề với mã Holland.
+- Quản lý nhóm ngành đào tạo.
+- Thêm mô tả nghề nghiệp và kỹ năng cần có.
+
+4. Quản lý email
+- Xem lịch sử gửi email.
+- Gửi lại kết quả.
+- Xem trạng thái gửi thành công/thất bại.
+
+5. Thống kê
+- Tổng số lượt khảo sát.
+- Số lượt khảo sát theo ngày/tháng/năm.
+- Thống kê theo tỉnh/thành.
+- Thống kê theo trường.
+- Thống kê theo nhóm Holland.
+- Biểu đồ trực quan trên dashboard.
+
+6. Xuất dữ liệu
+- Xuất Excel danh sách người khảo sát.
+- Xuất Excel kết quả.
+- Xuất PDF kết quả cá nhân.
+
+==================================================
+VI. DATABASE MYSQL
+==================================================
+
+Sử dụng Database: MySQL.
+
+Thiết kế các bảng chính:
+
+1. users
+- id
+- full_name
+- email
+- phone
+- interested_career
+- user_type
+- school
+- class_name
+- province
+- consent_status
+- created_at
+- updated_at
+
+2. questions
+- id
+- content
+- holland_type
+- order_number
+- is_active
+- created_at
+- updated_at
+
+3. answers
+- id
+- user_id
+- question_id
+- answer_value
+- created_at
+
+4. test_results
+- id
+- user_id
+- score_r
+- score_i
+- score_a
+- score_s
+- score_e
+- score_c
+- holland_code
+- top_1
+- top_2
+- top_3
+- result_description
+- result_token
+- created_at
+
+5. careers
+- id
+- holland_code
+- career_name
+- major_group
+- description
+- required_skills
+- learning_suggestion
+- is_active
+- created_at
+- updated_at
+
+6. email_logs
+- id
+- user_id
+- result_id
+- email
+- subject
+- status
+- error_message
+- sent_at
+- created_at
+
+7. admins
+- id
+- username
+- email
+- password_hash
+- role
+- is_active
+- created_at
+- updated_at
+
+8. settings
+- id
+- setting_key
+- setting_value
+- description
+
+==================================================
+VII. API BACKEND
+==================================================
+
+Xây dựng REST API gồm:
+
+Public API:
+- GET /api/questions
+- POST /api/surveys/submit
+- POST /api/users/info
+- GET /api/results/:token
+- POST /api/results/:id/send-email
+- GET /api/careers/recommendations
+
+Admin API:
+- POST /api/admin/login
+- GET /api/admin/dashboard
+- CRUD /api/admin/questions
+- CRUD /api/admin/careers
+- GET /api/admin/users
+- GET /api/admin/results
+- GET /api/admin/email-logs
+- POST /api/admin/results/:id/resend-email
+- GET /api/admin/export/users
+- GET /api/admin/export/results
+
+Yêu cầu:
+- Có Swagger/OpenAPI.
+- Có validate request.
+- Có response format thống nhất.
+- Có xử lý lỗi chuẩn.
+
+==================================================
+VIII. FRONTEND
+==================================================
+
+Frontend sử dụng:
+- ReactJS hoặc Next.js
+- Tailwind CSS
+- React Hook Form
+- Axios
+- Chart.js hoặc Recharts
+
+Yêu cầu giao diện:
+- Thiết kế hiện đại, sạch, chuyên nghiệp.
+- Responsive 100%.
+- Tối ưu cho mobile.
+- Có loading state.
+- Có thông báo lỗi/thành công.
+- Có biểu đồ kết quả.
+- Có dashboard admin.
+- Có form validation trực quan.
+- Có giao diện thân thiện với học sinh.
+
+Các trang cần có:
+- /
+- /test
+- /info
+- /result/:token
+- /admin/login
+- /admin/dashboard
+- /admin/questions
+- /admin/careers
+- /admin/results
+- /admin/email-logs
+
+==================================================
+IX. BACKEND
+==================================================
+
+Backend sử dụng:
+- Node.js
+- ExpressJS hoặc NestJS
+- MySQL
+- JWT Authentication
+- Nodemailer hoặc SMTP service
+- CAPTCHA verification
+- Bcrypt password hashing
+- Rate limiting
+- Helmet
+- CORS
+- Input validation
+
+Yêu cầu:
+- Tách controller, service, repository/model.
+- Có middleware xác thực admin.
+- Có middleware xử lý lỗi.
+- Có service tính điểm Holland.
+- Có service gửi email.
+- Có service xuất Excel/PDF.
+- Có logging.
+
+==================================================
+X. BẢO MẬT VÀ DỮ LIỆU CÁ NHÂN
+==================================================
+
+Bắt buộc:
+- CAPTCHA chống spam.
+- Validate dữ liệu đầu vào.
+- Sanitize dữ liệu.
+- Mã hóa mật khẩu admin bằng bcrypt.
+- JWT cho admin.
+- Rate limiting cho API public.
+- Không lưu mật khẩu dạng plain text.
+- Không hiển thị thông tin cá nhân công khai.
+- Có checkbox đồng ý lưu thông tin.
+- Có cơ chế xóa dữ liệu cá nhân nếu cần.
+- Bảo vệ link kết quả bằng result_token.
+- Cấu hình CORS an toàn.
+- Sử dụng HTTPS khi triển khai.
+
+==================================================
+XI. SEO VÀ HIỆU NĂNG
+==================================================
+
+Yêu cầu:
+- Tối ưu SEO cho trang chủ.
+- Có title, description, Open Graph.
+- Tối ưu tốc độ tải trang.
+- Lazy loading khi cần.
+- Tối ưu ảnh.
+- Tối ưu truy vấn MySQL.
+- Có phân trang dữ liệu trong admin.
+- Có index cho các trường thường tìm kiếm: email, phone, province, holland_code, created_at.
+
+==================================================
+XII. TRIỂN KHAI
+==================================================
+
+Yêu cầu:
+- Có Dockerfile cho frontend.
+- Có Dockerfile cho backend.
+- Có docker-compose.yml gồm frontend, backend, MySQL, Nginx.
+- Có file .env.example.
+- Có hướng dẫn cài đặt local.
+- Có hướng dẫn triển khai VPS/cloud.
+- Có hướng dẫn cấu hình SMTP.
+- Có hướng dẫn cấu hình CAPTCHA.
+- Có hướng dẫn backup database MySQL.
+
+==================================================
+XIII. KIỂM THỬ
+==================================================
+
+Cần có test cases cho:
+- Làm bài khảo sát.
+- Validate form thông tin cá nhân.
+- Tính điểm Holland.
+- Sinh mã Holland.
+- Gợi ý ngành nghề.
+- Gửi email kết quả.
+- Đăng nhập admin.
+- Quản lý câu hỏi.
+- Quản lý ngành nghề.
+- Xuất Excel/PDF.
+- Bảo mật API.
+
+==================================================
+XIV. YÊU CẦU ĐẦU RA
+==================================================
+
+AI cần tạo đầy đủ:
+
+1. Phân tích yêu cầu phần mềm.
+2. User stories.
+3. Acceptance criteria.
+4. Use case.
+5. Kiến trúc hệ thống.
+6. Thiết kế database MySQL.
+7. File SQL tạo database.
+8. Danh sách API.
+9. Swagger/OpenAPI.
+10. Cấu trúc thư mục dự án.
+11. Source code frontend.
+12. Source code backend.
+13. Template email HTML.
+14. Chức năng gửi email kết quả.
+15. Chức năng xuất PDF.
+16. Chức năng xuất Excel.
+17. Docker configuration.
+18. File .env.example.
+19. Hướng dẫn cài đặt local.
+20. Hướng dẫn triển khai production.
+21. Test cases.
+22. Checklist bảo mật.
+23. Hướng dẫn backup/restore MySQL.
+24. Hướng dẫn mở rộng hệ thống.
+
+==================================================
+XV. QUY TRÌNH AI AGENT
+==================================================
+
+Thực hiện theo quy trình:
+
+Bước 1:
+Business Analyst phân tích yêu cầu, viết user stories và acceptance criteria.
+
+Bước 2:
+UX/UI Designer thiết kế luồng giao diện, wireframe và trải nghiệm người dùng.
+
+Bước 3:
+Software Architect thiết kế kiến trúc hệ thống, module, API và bảo mật.
+
+Bước 4:
+Database Engineer thiết kế database MySQL, quan hệ bảng và index.
+
+Bước 5:
+Backend Developer xây dựng REST API, xử lý logic Holland, gửi email, xuất PDF/Excel.
+
+Bước 6:
+Frontend Developer xây dựng giao diện người dùng và giao diện quản trị.
+
+Bước 7:
+Security Engineer kiểm tra bảo mật, CAPTCHA, JWT, validate dữ liệu, chống spam.
+
+Bước 8:
+QA Engineer viết test cases và kiểm thử các chức năng chính.
+
+Bước 9:
+DevOps Engineer cấu hình Docker, Nginx, MySQL, SMTP, CAPTCHA và hướng dẫn triển khai.
+
+Bước 10:
+Code Reviewer rà soát toàn bộ mã nguồn, tối ưu hiệu năng, bảo mật và khả năng mở rộng.
+
+==================================================
+XVI. TIÊU CHUẨN CODE
+==================================================
+
+- Clean Architecture.
+- Clean Code.
+- SOLID principles.
+- RESTful API chuẩn.
+- Dễ bảo trì.
+- Dễ mở rộng.
+- Có comment rõ ràng ở phần quan trọng.
+- Production-ready.
+- Tối ưu hiệu năng.
+- Responsive toàn bộ giao diện.
+- Có xử lý lỗi đầy đủ.
+- Không hard-code cấu hình nhạy cảm.
+- Tách rõ frontend, backend, database, email service.
+
+Hãy xây dựng hệ thống theo tiêu chuẩn phần mềm enterprise chuyên nghiệp, có thể triển khai thực tế cho hoạt động tư vấn hướng nghiệp và tuyển sinh.
+```
