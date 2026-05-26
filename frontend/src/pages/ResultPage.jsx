@@ -93,7 +93,7 @@ export default function ResultPage() {
           <span style="display:inline-block;width:32px;height:32px;line-height:32px;text-align:center;border-radius:8px;background:${TYPE_COLORS[k]};color:#fff;font-weight:700;font-size:14px;">${k}</span>
           <span style="font-size:13px;font-weight:600;width:100px;color:#334155;">${TYPE_VN[k]}</span>
           <div style="flex:1;background:#f1f5f9;height:22px;border-radius:11px;overflow:hidden;">
-            <div style="background:${TYPE_COLORS[k]};height:22px;border-radius:11px;width:${Math.max((v/50)*100, 4)}%;display:flex;align-items:center;justify-content:flex-end;padding-right:${v > 5 ? '10' : '20'}px;box-sizing:border-box;">
+            <div style="background:${TYPE_COLORS[k]};height:22px;border-radius:11px;width:${Math.max((v/5)*100, 8)}%;display:flex;align-items:center;justify-content:flex-end;padding-right:${v > 5 ? '10' : '20'}px;box-sizing:border-box;">
               <span style="color:${v > 25 ? '#fff' : '#334155'};font-size:12px;font-weight:700;">${v.toFixed(1)}</span>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function ResultPage() {
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="type" tick={{ fontSize: 11 }} />
-              <YAxis domain={[0, 50]} />
+              <YAxis domain={[0, 5]} />
               <Tooltip />
               <Bar dataKey="score" fill="#2563eb" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -235,7 +235,7 @@ export default function ResultPage() {
             <RadarChart data={radarData}>
               <PolarGrid />
               <PolarAngleAxis dataKey="type" tick={{ fontSize: 12 }} />
-              <PolarRadiusAxis domain={[0, 50]} />
+              <PolarRadiusAxis domain={[0, 5]} />
               <Radar dataKey="score" stroke="#2563eb" fill="#2563eb" fillOpacity={0.3} />
             </RadarChart>
           </ResponsiveContainer>
