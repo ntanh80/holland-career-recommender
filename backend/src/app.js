@@ -3,6 +3,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const env = require('./config/env');
 const publicRoutes = require('./routes/publicRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -19,6 +20,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api', publicRoutes);
+app.use('/api', adminRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Route not found' } });
