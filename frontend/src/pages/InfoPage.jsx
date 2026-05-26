@@ -56,21 +56,21 @@ export default function InfoPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">Thông tin cá nhân</h1>
-      <p className="text-gray-600 mb-8">
+    <div className="max-w-xl mx-auto px-4 py-4">
+      <h1 className="text-lg font-bold mb-1">Thông tin cá nhân</h1>
+      <p className="text-xs text-gray-500 mb-3">
         Vui lòng nhập thông tin chi tiết của bạn dưới đây để xem kết quả trắc nghiệm.
         Các trường có dấu (*) là bắt buộc nhập.
       </p>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div>
           <label className="label-field">Họ và tên *</label>
           <input {...register('full_name', { required: 'Vui lòng nhập họ và tên' })} className={`input-field ${errors.full_name ? 'input-error' : ''}`} />
           {errors.full_name && <p className="error-text">{errors.full_name.message}</p>}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label-field">Email *</label>
             <input type="email" {...register('email', { required: 'Vui lòng nhập email', pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Email không hợp lệ' } })} className={`input-field ${errors.email ? 'input-error' : ''}`} />
@@ -102,20 +102,15 @@ export default function InfoPage() {
         </div>
 
         <div>
-          <label className="label-field">Lớp</label>
-          <input {...register('class_name')} className="input-field" placeholder="VD: 12A1" />
-        </div>
-
-        <div>
           <label className="label-field">Tỉnh/Thành *</label>
           <input {...register('province', { required: 'Vui lòng nhập tỉnh/thành' })} className={`input-field ${errors.province ? 'input-error' : ''}`} placeholder="VD: TP.HCM, Hà Nội..." />
           {errors.province && <p className="error-text">{errors.province.message}</p>}
         </div>
 
         {/* Nhóm nguyện vọng */}
-        <div className="pt-4 border-t">
-          <h3 className="text-base font-semibold text-gray-800 mb-3">Nguyện vọng</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="pt-3 border-t">
+          <h3 className="text-sm font-semibold text-gray-800 mb-2">Nguyện vọng</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="label-field">Ngành học mong muốn *</label>
               <input {...register('desired_major', { required: 'Vui lòng nhập ngành học mong muốn' })} className={`input-field ${errors.desired_major ? 'input-error' : ''}`} placeholder="VD: Công nghệ thông tin..." />
@@ -129,15 +124,15 @@ export default function InfoPage() {
           </div>
         </div>
 
-        <div className="flex items-start gap-3 pt-2">
-          <input type="checkbox" {...register('consent_status', { required: 'Bạn cần đồng ý để tiếp tục' })} className="mt-1 w-4 h-4 text-primary-600 rounded" id="consent" />
-          <label htmlFor="consent" className="text-sm text-gray-600">
+        <div className="flex items-start gap-2 pt-1">
+          <input type="checkbox" {...register('consent_status', { required: 'Bạn cần đồng ý để tiếp tục' })} className="mt-0.5 w-3.5 h-3.5 text-primary-600 rounded" id="consent" />
+          <label htmlFor="consent" className="text-xs text-gray-600">
             Tôi đồng ý cho hệ thống lưu thông tin để gửi kết quả và tư vấn hướng nghiệp *
           </label>
         </div>
         {errors.consent_status && <p className="error-text">{errors.consent_status.message}</p>}
 
-        <Button type="submit" disabled={submitting} className="w-full !py-3.5 !text-lg">
+        <Button type="submit" disabled={submitting} className="w-full !py-2.5 !text-base">
           {submitting ? 'Đang xử lý...' : 'Xem kết quả'}
         </Button>
       </form>

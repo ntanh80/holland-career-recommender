@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 import api from '../services/api';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Button from '../components/ui/Button';
@@ -52,34 +53,81 @@ export default function ResultPage() {
     }
   };
 
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+  const handleDownloadPDF = async () => {
     const d = result;
-    doc.setFontSize(20);
-    doc.text('Ket qua Trac nghiem Huong nghiep', 105, 20, { align: 'center' });
-    doc.setFontSize(14);
-    doc.text(`Ho ten: ${d.full_name}`, 20, 35);
-    doc.text(`Ma Holland: ${d.holland_code}`, 20, 45);
-    doc.setFontSize(11);
-    let y = 60;
-    doc.text(`Diem tung nhom:`, 20, y);
-    y += 8;
-    Object.entries(d.scores).forEach(([k, v]) => {
-      doc.text(`  ${k} (${TYPE_VN[k]}): ${v.toFixed(1)}`, 20, y);
-      y += 7;
-    });
-    y += 5;
-    doc.text(`Top 3 nhom noi bat: ${d.top_three.join(', ')}`, 20, y);
-    y += 8;
-    if (d.careers?.length) {
-      doc.text('Nghe nghiep goi y:', 20, y);
-      y += 8;
-      d.careers.slice(0, 8).forEach(c => {
-        doc.text(`  - ${c.career_name} (${c.major_group})`, 20, y);
-        y += 7;
-      });
+
+    // Build a hidden HTML element rendered by the browser (preserves Vietnamese fonts)
+    const el = document.createElement('div');
+    el.style.cssText = 'position:absolute;left:-9999px;top:0;width:700px;background:#fff;font-family:Arial,sans-serif;padding:20px;line-height:1.6;color:#333;';
+    el.innerHTML = `
+      <h1 style="text-align:center;font-size:22px;margin-bottom:5px;">Kết quả Trắc nghiệm Hướng nghiệp</h1>
+      <h2 style="text-align:center;font-size:18px;font-weight:normal;color:#666;margin-bottom:20px;">Holland / RIASEC</h2>
+      <p style="font-size:15px;"><strong>Họ tên:</strong> ${d.full_name}</p>
+      <p style="font-size:15px;"><strong>Mã Holland:</strong> <span style="font-size:20px;font-weight:bold;color:#2563eb;">${d.holland_code}</span></p>
+      <hr style="margin:15px 0;">
+      <h3 style="font-size:16px;margin-bottom:8px;">Điểm từng nhóm:</h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:15px;">
+        ${Object.entries(d.scores).map(([k, v]) => `
+          <tr>
+            <td style="padding:4px 8px;font-weight:bold;">${k} - ${TYPE_VN[k]}</td>
+            <td style="padding:4px 8px;">${v.toFixed(1)} điểm</td>
+            <td style="padding:4px 8px;">
+              <div style="background:#e5e7eb;height:8px;border-radius:4px;width:200px;">
+                <div style="background:${TYPE_COLORS[k]};height:8px;border-radius:4px;width:${(v / 50) * 200}px;"></div>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </table>
+      <p style="font-size:14px;"><strong>Top 3 nhóm nổi bật:</strong> ${d.top_three.map(t => `${t} - ${TYPE_LABELS[t]} (${TYPE_VN[t]})`).join(' | ')}</p>
+      ${d.top_three.map((type, i) => `
+        <div style="margin-top:12px;padding:10px;border-left:4px solid ${TYPE_COLORS[type]};background:#f9fafb;">
+          <h3 style="font-size:15px;color:${TYPE_COLORS[type]};margin:0 0 5px;">Top ${i + 1}: ${TYPE_LABELS[type]} — ${TYPE_VN[type]}</h3>
+          <p style="font-size:13px;margin:0;color:#555;">${d[`top_${i + 1}`].description}</p>
+        </div>
+      `).join('')}
+      ${d.careers?.length ? `
+        <hr style="margin:15px 0;">
+        <h3 style="font-size:16px;margin-bottom:8px;">Ngành nghề gợi ý:</h3>
+        ${d.careers.slice(0, 10).map(c => `
+          <div style="margin-bottom:8px;padding:8px;border:1px solid #e5e7eb;border-radius:4px;">
+            <strong style="font-size:14px;">${c.career_name}</strong>
+            <span style="font-size:12px;color:#666;"> — ${c.major_group}</span>
+            <p style="font-size:12px;margin:4px 0 0;color:#555;">${c.description || ''}</p>
+          </div>
+        `).join('')}
+      ` : ''}
+    `;
+    document.body.appendChild(el);
+
+    try {
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true });
+      document.body.removeChild(el);
+
+      const imgData = canvas.toDataURL('image/png');
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const doc = new jsPDF('p', 'mm', 'a4');
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = position - pageHeight;
+        doc.addPage();
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      doc.save(`Holland-${d.full_name}-${d.holland_code}.pdf`);
+    } catch (err) {
+      document.body.removeChild(el);
+      toast.error('Không thể tạo PDF. Vui lòng thử lại.');
     }
-    doc.save(`Holland-${d.full_name}-${d.holland_code}.pdf`);
   };
 
   if (loading) return <LoadingSpinner message="Đang tải kết quả..." />;
